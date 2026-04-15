@@ -1,0 +1,14 @@
+Setup vòng Quay
+
+1. Lucky Draw: (Quay lúc check in): bao gồm các tên các Khoá học theo chủ đề bên dưới & Khoá học tiếng "Say Annyeong"
+- Tham khảo file "ds_giai_thuong.txt"
+
+2. Quay cho Sec Trúng thưởng :06 PHẦN QUÀ TỔNG TRỊ GIÁ 310TR: (tỉ lệ 1 cái 60tr, 5 giải 50tr)
+    60.000.000VND
+    50.000.000VND
+    Chúc em may mắn lần sau
+    2 cốc Canh chả cá HQ
+    1 cốc Tteokbokki
+    2 suất mì Tương đen
+
+Yêu cầu: sử dụng format hình ảnh, visual theo các ảnh trong folder "image"

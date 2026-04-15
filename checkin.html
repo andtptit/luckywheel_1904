@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vòng Quay Check-in</title>
+    <link rel="stylesheet" href="./style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+</head>
+<body class="checkin-body">
+    <nav style="padding: 1rem 2rem;">
+        <a href="./index.html" style="color: white; text-decoration: none; font-weight: bold;">← Về Trang Chủ</a>
+    </nav>
+    <div class="container">
+        <!-- Form Section -->
+        <div class="glass-panel">
+            <h1 class="main-title" style="font-size: 2.5rem;">Vòng Quay May Mắn</h1>
+            <p class="subtitle">Nhập thông tin để nhận phần quà hấp dẫn</p>
+            
+            <form id="checkinForm">
+                <div class="form-group">
+                    <label for="fullname">Họ và Tên</label>
+                    <input type="text" id="fullname" class="form-control" placeholder="Nhập họ và tên của bạn" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Số điện thoại</label>
+                    <input type="tel" id="phone" class="form-control" placeholder="Nhập số điện thoại" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; flex-direction: row; font-size: 1.2rem; padding: 1rem;">
+                    QUAY NGAY 🎡
+                </button>
+            </form>
+            <div id="checkinStatus" style="margin-top: 1rem; color: #ffeb3b; font-weight: bold;"></div>
+        </div>
+
+        <!-- Wheel Section -->
+        <div class="wheel-wrapper">
+            <div class="wheel-pointer"></div>
+            <div class="wheel-container">
+                <canvas id="checkinWheel" class="wheel-canvas" width="500" height="500"></canvas>
+                <div class="wheel-center-dot"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div class="modal-overlay" id="resultModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Chúc Mừng! 🎉</h2>
+            <p style="color: #cbd5e1; margin-bottom: 0.5rem;" id="winnerName"></p>
+            <p class="modal-prize" id="prizeText"></p>
+            <button class="btn btn-secondary" onclick="document.getElementById('resultModal').classList.remove('active')" style="flex-direction: row;">Đóng</button>
+        </div>
+    </div>
+
+    <script type="module" src="/js/checkin.js"></script>
+</body>
+</html>
