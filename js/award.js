@@ -1,18 +1,25 @@
 import { LuckyWheel } from './wheelUtils.js';
 import confetti from 'canvas-confetti';
-
-const PRIZES_CONFIG = [
-    { id: 'p1', name: '60.000.000VND', total: 1 },
-    { id: 'p2', name: '50.000.000VND', total: 5 },
-    { id: 'p3', name: '2 cốc Canh chả cá HQ', total: 2 },
-    { id: 'p4', name: '1 cốc Tteokbokki', total: 1 },
-    { id: 'p5', name: '2 suất mì Tương đen', total: 1 },
-];
+import { db } from './firebase.js';
+import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
 
 document.addEventListener('DOMContentLoaded', () => {
     let candidates = [];
-    let prizesState = [...PRIZES_CONFIG].map(p => ({...p, remain: p.total}));
+    let prizesState = [];
     let activePrizeId = null;
+
+    // Fetch Award Prizes
+    async function loadAwardPrizes() {
+        const snap = await getDocs(collection(db, "award_prizes"));
+        prizesState = [];
+        snap.forEach(docSnap => {
+            prizesState.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        // Sort by prize name for consistency
+        prizesState.sort((a,b) => b.name.localeCompare(a.name));
+        renderPrizes();
+    }
+    loadAwardPrizes();
 
     const wheel = new LuckyWheel('awardWheel', candidates, (wonName, winIndex) => {
         showResult(wonName, winIndex);
@@ -76,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     let lastWonIdx = -1;
-    function showResult(winnerName, winIndex) {
+    async function showResult(winnerName, winIndex) {
         lastWonIdx = winIndex;
         const currentPrize = prizesState.find(p => p.id === activePrizeId);
         
@@ -86,12 +93,20 @@ document.addEventListener('DOMContentLoaded', () => {
         resultModal.classList.add('active');
         confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 }, colors: ['#c2002f', '#d4af37', '#ffffff'] });
 
-        // Decrease prize count
+        // Decrease prize count locally
         currentPrize.remain--;
         if (currentPrize.remain <= 0) {
             activePrizeId = null; // deselect if empty
         }
         renderPrizes();
+
+        // Cập nhật lên Firebase
+        try {
+            const prizeRef = doc(db, "award_prizes", currentPrize.id);
+            await updateDoc(prizeRef, { remain: currentPrize.remain });
+        } catch(e) {
+            console.error("Lỗi cập nhật số lượng quà lên Firebase:", e);
+        }
     }
 
     // Xóa user sau khi xác nhận

@@ -1,24 +1,36 @@
 import { LuckyWheel } from './wheelUtils.js';
 import confetti from 'canvas-confetti';
-
-const CHECKIN_PRIZES = [
-    'Khóa học say Annyeong',
-    'Khóa học E-Learning - xxx',
-    'Khóa học E-Learning - xxxxx',
-    'Khóa học E-Learning - xxxxxxxxxx'
-];
+import { db } from './firebase.js';
+import { collection, query, where, getDocs, addDoc, serverTimestamp, doc, getDoc } from "firebase/firestore";
 
 document.addEventListener('DOMContentLoaded', () => {
-    const wheel = new LuckyWheel('checkinWheel', CHECKIN_PRIZES, (wonItem) => {
+    let checkinPrizes = [];
+    const wheel = new LuckyWheel('checkinWheel', [], (wonItem) => {
         showResult(wonItem);
     });
+
+    // Lấy quỹ giải thưởng Check-in từ Firebase
+    async function fetchPrizes() {
+        try {
+            const snap = await getDoc(doc(db, "config", "checkin_prizes"));
+            if (snap.exists()) {
+                checkinPrizes = snap.data().items;
+                wheel.setItems(checkinPrizes);
+            }
+        } catch(error) {
+            console.error("Lỗi tải danh sách giải thưởng:", error);
+        }
+    }
+    fetchPrizes();
+
 
     const form = document.getElementById('checkinForm');
     const statusDiv = document.getElementById('checkinStatus');
     const resultModal = document.getElementById('resultModal');
     let currentUserName = '';
+    let currentPhone = '';
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
         if (wheel.isSpinning) return;
@@ -26,39 +38,53 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = document.getElementById('fullname').value.trim();
         const phone = document.getElementById('phone').value.trim();
 
-        // MOCK: Kiểm tra database qua LocalStorage
-        let db = JSON.parse(localStorage.getItem('luckywheel_db') || '{}');
-        
-        if (db[phone]) {
-            statusDiv.textContent = '❌ Số điện thoại này đã tham gia quay số trước đó!';
-            statusDiv.style.color = '#ff5252';
-            return;
-        }
-
-        // Đủ điều kiện quay
-        statusDiv.textContent = 'Đang quay... 🎡';
+        statusDiv.textContent = 'Đang kiểm tra thông tin...';
         statusDiv.style.color = '#ffeb3b';
-        currentUserName = name;
-        
-        // Lưu trước để tránh load lại trang quay 2 lần
-        db[phone] = { name, checkinAt: new Date().toISOString() };
-        localStorage.setItem('luckywheel_db', JSON.stringify(db));
 
-        // Disable button
-        form.querySelector('button').disabled = true;
-        
-        wheel.spin();
+        try {
+            // Kiểm tra trùng SĐT trên Firestore
+            const participantsRef = collection(db, "participants");
+            const q = query(participantsRef, where("phone", "==", phone));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                statusDiv.textContent = '❌ Số điện thoại này đã tham gia quay số trước đó!';
+                statusDiv.style.color = '#ff5252';
+                return;
+            }
+
+            // Đủ điều kiện quay
+            statusDiv.textContent = 'Đang quay... 🎡';
+            currentUserName = name;
+            currentPhone = phone;
+            
+            // Disable button
+            form.querySelector('button').disabled = true;
+            wheel.spin();
+            
+        } catch (error) {
+            console.error("Lỗi Firebase:", error);
+            statusDiv.textContent = '❌ Lỗi kết nối database! Vui lòng kiểm tra config Firebase.';
+            statusDiv.style.color = '#ff5252';
+        }
     });
 
-    function showResult(prize) {
-        statusDiv.textContent = 'Quay hoàn tất!';
+    async function showResult(prize) {
+        statusDiv.textContent = 'Quay hoàn tất! Đang lưu kết quả...';
         
-        // Update DB with prize
-        const phone = document.getElementById('phone').value.trim();
-        let db = JSON.parse(localStorage.getItem('luckywheel_db') || '{}');
-        if (db[phone]) {
-            db[phone].prize = prize;
-            localStorage.setItem('luckywheel_db', JSON.stringify(db));
+        try {
+            // Lưu kết quả vào Firestore
+            await addDoc(collection(db, "participants"), {
+                name: currentUserName,
+                phone: currentPhone,
+                prize: prize,
+                createdAt: serverTimestamp()
+            });
+            
+            statusDiv.textContent = 'Đã lưu kết quả thành công!';
+        } catch (error) {
+            console.error("Lỗi lưu data:", error);
+            statusDiv.textContent = 'Quay xong nhưng lỗi lưu data!';
         }
 
         document.getElementById('winnerName').textContent = currentUserName;
