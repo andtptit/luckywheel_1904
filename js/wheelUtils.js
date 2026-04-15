@@ -52,7 +52,7 @@ export class LuckyWheel {
             ctx.strokeStyle = 'rgba(255,255,255,0.2)';
             ctx.stroke();
 
-            // Draw text
+            // Draw text with Multi-line support
             ctx.save();
             ctx.translate(centerX, centerY);
             ctx.rotate(i * step + step / 2);
@@ -60,14 +60,35 @@ export class LuckyWheel {
             ctx.fillStyle = '#fff';
             ctx.font = 'bold 16px Inter';
             
-            // Limit text length
-            let text = this.items[i];
-            if (text.length > 20) text = text.substring(0, 20) + '...';
+            const text = this.items[i];
+            const maxLineWidth = radius - 80;
+            const words = text.split(' ');
+            const lines = [];
+            let currentLine = '';
+
+            for (const word of words) {
+                const testLine = currentLine ? `${currentLine} ${word}` : word;
+                if (ctx.measureText(testLine).width < maxLineWidth) {
+                    currentLine = testLine;
+                } else {
+                    if (currentLine) lines.push(currentLine);
+                    currentLine = word;
+                }
+            }
+            if (currentLine) lines.push(currentLine);
+
+            const lineHeight = 20;
+            const totalHeight = lines.length * lineHeight;
             
             // Add shadow to text for better readability
             ctx.shadowColor = "rgba(0,0,0,0.8)";
             ctx.shadowBlur = 4;
-            ctx.fillText(text, radius - 30, 6);
+            
+            lines.forEach((line, index) => {
+                // Center lines vertically
+                const yOffset = (lineHeight * index) - (totalHeight / 2) + (lineHeight / 2);
+                ctx.fillText(line.trim(), radius - 30, yOffset + 4);
+            });
             ctx.restore();
         }
     }

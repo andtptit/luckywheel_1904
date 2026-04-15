@@ -11,9 +11,18 @@
     <div class="home-container">
         <div class="glass-panel text-center">
             <h1 class="main-title">Hệ Thống Vòng Quay Sự Kiện</h1>
-            <p class="subtitle">Vui lòng chọn chế độ vòng quay</p>
+            <p class="subtitle" id="subtitle-text" style="display: none;">Vui lòng chọn chế độ vòng quay</p>
             
-            <div class="action-buttons">
+            <!-- Phần nhập mật khẩu -->
+            <div id="login-section" style="margin-top: 2rem;">
+                <input type="password" id="adminPass" class="form-control" placeholder="Nhập mật khẩu hệ thống" style="max-width: 300px; display: inline-block; margin-bottom: 1rem; text-align: center;">
+                <br>
+                <button id="btnAuth" class="btn btn-secondary">Đăng nhập</button>
+                <div id="authError" style="color: #ff5252; margin-top: 0.5rem; display: none; font-weight: bold;">❌ Sai mật khẩu!</div>
+            </div>
+
+            <!-- Các nút hành động (bị ẩn mặc định) -->
+            <div class="action-buttons" id="system-actions" style="display: none;">
                 <a href="./checkin.html" class="btn btn-primary btn-lg">
                     <span class="btn-icon">🎡</span>
                     Vòng Quay Check-in
@@ -28,5 +37,41 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginSection = document.getElementById('login-section');
+            const systemActions = document.getElementById('system-actions');
+            const subtitleText = document.getElementById('subtitle-text');
+            const adminPass = document.getElementById('adminPass');
+            const btnAuth = document.getElementById('btnAuth');
+            const authError = document.getElementById('authError');
+
+            // Kiểm tra session để không bắt nhập lại nếu lỡ reload trang
+            if (sessionStorage.getItem('tbt_auth') === 'true') {
+                loginSection.style.display = 'none';
+                systemActions.style.display = 'flex';
+                subtitleText.style.display = 'block';
+            }
+
+            btnAuth.addEventListener('click', () => {
+                if (adminPass.value === 'TBT@2026') {
+                    sessionStorage.setItem('tbt_auth', 'true');
+                    loginSection.style.display = 'none';
+                    systemActions.style.display = 'flex';
+                    subtitleText.style.display = 'block';
+                    authError.style.display = 'none';
+                } else {
+                    authError.style.display = 'block';
+                    adminPass.value = ''; // xóa pass sai
+                }
+            });
+
+            // Hỗ trợ ấn Enter để đăng nhập
+            adminPass.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') btnAuth.click();
+            });
+        });
+    </script>
   </body>
 </html>
