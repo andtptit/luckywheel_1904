@@ -1,7 +1,7 @@
 import { LuckyWheel } from './wheelUtils.js';
 import confetti from 'canvas-confetti';
 import { db } from './firebase.js';
-import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc, addDoc, serverTimestamp } from "firebase/firestore";
 
 document.addEventListener('DOMContentLoaded', () => {
     let candidates = [];
@@ -104,6 +104,13 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const prizeRef = doc(db, "award_prizes", currentPrize.id);
             await updateDoc(prizeRef, { remain: currentPrize.remain });
+
+            // Lưu lịch sử người trúng giải
+            await addDoc(collection(db, "award_winners"), {
+                name: winnerName,
+                prize: currentPrize.name,
+                createdAt: serverTimestamp()
+            });
         } catch(e) {
             console.error("Lỗi cập nhật số lượng quà lên Firebase:", e);
         }
