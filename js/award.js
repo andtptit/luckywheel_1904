@@ -1,4 +1,4 @@
-import { LuckyWheel } from './wheelUtils.js';
+import { SlotMachine } from './slotUtils.js';
 import confetti from 'canvas-confetti';
 import { db } from './firebase.js';
 import { collection, getDocs, doc, updateDoc, addDoc, serverTimestamp } from "firebase/firestore";
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     loadAwardPrizes();
 
-    const wheel = new LuckyWheel('awardWheel', candidates, (wonName, winIndex) => {
+    const slot = new SlotMachine('awardSlotMachine', candidates, (wonName, winIndex) => {
         showResult(wonName, winIndex);
     });
 
@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const listDiv = document.getElementById('candidateList');
     const countSpan = document.getElementById('candidateCount');
     const spinBtn = document.getElementById('spinAwardBtn');
+    const stopAwardBtn = document.getElementById('stopAwardBtn');
     const prizeSelector = document.getElementById('prizeSelector');
     const resultModal = document.getElementById('resultModal');
 
@@ -49,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 btn.onclick = () => {
                     activePrizeId = p.id;
+                    document.getElementById('currentAwardDisplay').textContent = p.name;
                     renderPrizes();
                     checkSpinReady();
                 };
@@ -63,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         candidates = text.split('\n').map(n => n.trim()).filter(n => n.length > 0);
         updateCandidateUI();
-        wheel.setItems(candidates);
+        slot.setItems(candidates);
         checkSpinReady();
     });
 
@@ -73,13 +75,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function checkSpinReady() {
-        spinBtn.disabled = candidates.length === 0 || !activePrizeId || wheel.isSpinning;
+        spinBtn.disabled = candidates.length === 0 || !activePrizeId || slot.isSpinning;
     }
 
     spinBtn.addEventListener('click', () => {
         if (!activePrizeId || candidates.length === 0) return;
-        wheel.spin();
-        checkSpinReady(); // disable button
+        slot.startInfinite();
+        
+        spinBtn.style.display = 'none';
+        stopAwardBtn.style.display = 'block';
+        stopAwardBtn.disabled = false;
+    });
+
+    stopAwardBtn.addEventListener('click', () => {
+        if (!slot.isSpinning) return;
+        stopAwardBtn.disabled = true; // Chống click nhiều lần
+        stopAwardBtn.textContent = 'ĐANG DỪNG...'; // Cập nhật text hiển thị
+        
+        const winIndex = Math.floor(Math.random() * candidates.length);
+        slot.stop(winIndex);
+        
+        // Modal sẽ tự động hiện ra nhờ onSpinEnd truyền vào constructor SlotMachine
     });
 
     let lastWonIdx = -1;
@@ -99,6 +115,19 @@ document.addEventListener('DOMContentLoaded', () => {
             activePrizeId = null; // deselect if empty
         }
         renderPrizes();
+
+        // Cập nhật Bảng Vàng
+        const boardList = document.getElementById('goldenBoardList');
+        if (boardList.querySelector('p')) {
+            boardList.innerHTML = ''; // xóa dòng placeholder
+        }
+        const winnerEl = document.createElement('div');
+        winnerEl.className = 'candidate-item';
+        winnerEl.style.flexDirection = 'column';
+        winnerEl.style.alignItems = 'flex-start';
+        winnerEl.innerHTML = `<strong style="font-size: 1.1rem;">${winnerName}</strong><span style="font-size: 0.85rem; color: var(--primary); font-weight: bold;">${currentPrize.name}</span>`;
+        // insert at top
+        boardList.insertBefore(winnerEl, boardList.firstChild);
 
         // Cập nhật lên Firebase
         try {
@@ -121,10 +150,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (lastWonIdx !== -1) {
             candidates.splice(lastWonIdx, 1);
             updateCandidateUI();
-            wheel.setItems(candidates);
+            slot.setItems(candidates);
             candidateInput.value = candidates.join('\n'); // keep sync
             lastWonIdx = -1;
+            
+            // Hiện lại nút QUAY sau khi đóng Modal
+            spinBtn.style.display = 'block';
+            stopAwardBtn.style.display = 'none';
+            stopAwardBtn.textContent = 'DỪNG LẠI!'; // Khôi phục text ban đầu
             checkSpinReady();
+        }
+    });
+    // Xóa bộ nhớ Bảng Vàng
+    document.getElementById('btnClearGoldenBoard').addEventListener('click', () => {
+        if(confirm("Bạn muốn xóa hiển thị Bảng Vàng? (Không ảnh hưởng đến database)")) {
+            document.getElementById('goldenBoardList').innerHTML = '<p style="text-align: center; color: #94a3b8; font-style: italic; margin-top: 2rem;">Đang chờ chủ nhân các giải thưởng...</p>';
         }
     });
 });

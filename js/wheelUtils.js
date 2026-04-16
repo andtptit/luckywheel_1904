@@ -6,6 +6,8 @@ export class LuckyWheel {
         this.onSpinEnd = onSpinEnd;
         this.isSpinning = false;
         this.currentDeg = 0;
+        this.spinFrame = null;
+        this.lastTimestamp = 0;
         
         // Premium Colors
         this.colors = [
@@ -44,7 +46,10 @@ export class LuckyWheel {
             ctx.beginPath();
             ctx.moveTo(centerX, centerY);
             ctx.arc(centerX, centerY, radius, i * step, (i + 1) * step);
-            ctx.fillStyle = this.colors[i % this.colors.length];
+            // Hỗ trợ truyền thẳng string hoặc lấy từ object
+            const itemObj = typeof this.items[i] === 'object' ? this.items[i] : { text: this.items[i] };
+            
+            ctx.fillStyle = itemObj.bgColor || this.colors[i % this.colors.length];
             ctx.fill();
 
             // Draw border
@@ -57,11 +62,12 @@ export class LuckyWheel {
             ctx.translate(centerX, centerY);
             ctx.rotate(i * step + step / 2);
             ctx.textAlign = 'right';
-            ctx.fillStyle = '#fff';
-            ctx.font = 'bold 16px Inter';
+            ctx.fillStyle = itemObj.textColor || '#fff';
+            ctx.font = "bold 16px 'Be Vietnam Pro'";
             
-            const text = this.items[i];
+            const text = itemObj.text || '';
             const maxLineWidth = radius - 80;
+
             const words = text.split(' ');
             const lines = [];
             let currentLine = '';
@@ -93,13 +99,13 @@ export class LuckyWheel {
         }
     }
 
-    spin() {
+    spin(targetIndex) {
         if (this.isSpinning || this.items.length === 0) return;
         this.isSpinning = true;
 
         const spinTime = 5000; // 5 seconds
-        // Need to set a winning index. Let's make it random.
-        const winIndex = Math.floor(Math.random() * this.items.length);
+        // Cho phép nhận targetIndex từ bên ngoài (ví dụ logic xác suất)
+        const winIndex = targetIndex !== undefined ? targetIndex : Math.floor(Math.random() * this.items.length);
         
         // Calculate degrees to rotate
         const step = 360 / this.items.length;
@@ -116,8 +122,65 @@ export class LuckyWheel {
         setTimeout(() => {
             this.isSpinning = false;
             if (this.onSpinEnd) {
-                this.onSpinEnd(this.items[winIndex], winIndex);
+                const itemObj = typeof this.items[winIndex] === 'object' ? this.items[winIndex] : { text: this.items[winIndex] };
+                this.onSpinEnd(itemObj.text, winIndex);
+            }
+        }, spinTime + 100);
+    }
+
+    startInfiniteSpin() {
+        if (this.isSpinning || this.items.length === 0) return;
+        this.isSpinning = true;
+        this.canvas.style.transition = 'none';
+        
+        this.lastTimestamp = performance.now();
+        const spinSpeed = 720; // degrees per second (nhanh)
+        
+        const animate = (timestamp) => {
+             if(!this.isSpinning) return;
+             
+             const dt = (timestamp - this.lastTimestamp) / 1000;
+             this.lastTimestamp = timestamp;
+             
+             this.currentDeg += spinSpeed * dt;
+             this.canvas.style.transform = `rotate(${this.currentDeg}deg)`;
+             
+             this.spinFrame = requestAnimationFrame(animate);
+        };
+        this.spinFrame = requestAnimationFrame(animate);
+    }
+
+    stopSpin(targetIndex) {
+        if(!this.isSpinning || this.spinFrame === null) return;
+        
+        cancelAnimationFrame(this.spinFrame);
+        this.spinFrame = null;
+        
+        const spinTime = 6000; // Quay chậm lại trong 6s
+        // Cho phép nhận targetIndex từ bên ngoài
+        const winIndex = targetIndex !== undefined ? targetIndex : Math.floor(Math.random() * this.items.length);
+        
+        // Calculate degrees to rotate
+        const step = 360 / this.items.length;
+        const targetDeg = (360 - (winIndex * step)) - (step / 2);
+        
+        const remainder = this.currentDeg % 360; 
+        const extraRotations = 360 * 5; // Thêm 5 vòng nữa cho 6 giây mượt mà
+        
+        const endDeg = this.currentDeg - remainder + extraRotations + targetDeg;
+        
+        this.canvas.style.transition = `transform ${spinTime}ms cubic-bezier(0.1, 0.7, 0.15, 1)`;
+        this.canvas.style.transform = `rotate(${endDeg}deg)`;
+        
+        this.currentDeg = endDeg;
+
+        setTimeout(() => {
+            this.isSpinning = false;
+            if (this.onSpinEnd) {
+                const itemObj = typeof this.items[winIndex] === 'object' ? this.items[winIndex] : { text: this.items[winIndex] };
+                this.onSpinEnd(itemObj.text, winIndex);
             }
         }, spinTime + 100);
     }
 }
+

@@ -14,7 +14,15 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const snap = await getDoc(doc(db, "config", "checkin_prizes"));
             if (snap.exists()) {
-                checkinPrizes = snap.data().items;
+                const data = snap.data();
+                checkinPrizes = data.items || [];
+                // Backward compatibility if items are just strings
+                checkinPrizes = checkinPrizes.map(p => {
+                    if (typeof p === 'string') {
+                        return { text: p, prob: 10, textColor: '#ffffff', bgColor: '#1d4289' };
+                    }
+                    return p;
+                });
                 wheel.setItems(checkinPrizes);
             }
         } catch(error) {
@@ -22,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     fetchPrizes();
+
 
 
     const form = document.getElementById('checkinForm');
@@ -60,7 +69,27 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Disable button
             form.querySelector('button').disabled = true;
-            wheel.spin();
+
+            // Tính toán xác suất trúng
+            let winIndex = 0;
+            const totalProb = checkinPrizes.reduce((sum, item) => sum + (parseFloat(item.prob) || 0), 0);
+            
+            if (totalProb > 0) {
+                let random = Math.random() * totalProb;
+                for (let i = 0; i < checkinPrizes.length; i++) {
+                    const prob = parseFloat(checkinPrizes[i].prob) || 0;
+                    if (random < prob) {
+                        winIndex = i;
+                        break;
+                    }
+                    random -= prob;
+                }
+            } else {
+                // Rơi vào random đều nếu tổng xác suất = 0
+                winIndex = Math.floor(Math.random() * checkinPrizes.length);
+            }
+
+            wheel.spin(winIndex);
             
         } catch (error) {
             console.error("Lỗi Firebase:", error);
@@ -87,8 +116,10 @@ document.addEventListener('DOMContentLoaded', () => {
             statusDiv.textContent = 'Quay xong nhưng lỗi lưu data!';
         }
 
+        // Hiển thị kết quả (backward compatible với string hoặc object)
+        const prizeText = typeof prize === 'object' ? prize.text : prize;
         document.getElementById('winnerName').textContent = currentUserName;
-        document.getElementById('prizeText').textContent = prize;
+        document.getElementById('prizeText').textContent = prizeText;
         resultModal.classList.add('active');
 
         confetti({

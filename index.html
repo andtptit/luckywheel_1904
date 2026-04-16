@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hệ Thống Vòng Quay May Mắn</title>
     <link rel="stylesheet" href="./style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
   </head>
   <body class="home-body">
     <div class="home-container">
@@ -35,6 +35,10 @@
                     <small>Dành cho ứng viên xét học bổng</small>
                 </a>
             </div>
+            
+            <div id="admin-link-section" style="margin-top: 2rem; display: none;">
+                <a href="./admin.html" style="color: var(--primary); font-size: 0.9rem; text-decoration: underline; font-weight: 600;">⚙️ Quản trị Vòng quay Check-in</a>
+            </div>
         </div>
     </div>
 
@@ -51,6 +55,7 @@
             if (sessionStorage.getItem('tbt_auth') === 'true') {
                 loginSection.style.display = 'none';
                 systemActions.style.display = 'flex';
+                document.getElementById('admin-link-section').style.display = 'block';
                 subtitleText.style.display = 'block';
             }
 
@@ -59,6 +64,7 @@
                     sessionStorage.setItem('tbt_auth', 'true');
                     loginSection.style.display = 'none';
                     systemActions.style.display = 'flex';
+                    document.getElementById('admin-link-section').style.display = 'block';
                     subtitleText.style.display = 'block';
                     authError.style.display = 'none';
                 } else {
@@ -73,5 +79,8 @@
             });
         });
     </script>
+    <footer class="site-footer">
+        &copy; 2026 Bản quyền thuộc về Công ty cổ phần quốc tế TBT Group
+    </footer>
   </body>
 </html>

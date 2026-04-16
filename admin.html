@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Trị Vòng Quay Check-in</title>
+    <link rel="stylesheet" href="./style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            text-align: left;
+        }
+
+        @media (max-width: 1024px) {
+            .admin-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .prize-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+        }
+
+        .prize-row input[type="color"] {
+            border: none;
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .prize-info {
+            flex-grow: 1;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* Tabs styling */
+        .admin-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 1rem;
+        }
+        .admin-tab {
+            padding: 0.5rem 1rem;
+            background: #e2e8f0;
+            color: #475569;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            border: none;
+            transition: all 0.2s;
+        }
+        .admin-tab.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 6px rgba(29, 66, 137, 0.2);
+        }
+        .data-list {
+            margin-top: 1rem;
+            background: #fff;
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid #cbd5e1;
+        }
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: var(--text-light);
+        }
+        .data-row:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body class="home-body">
+    <nav style="padding: 1rem 2rem;">
+        <a href="./index.html" style="color: white; text-decoration: none; font-weight: bold;">← Về Trang Chủ</a>
+    </nav>
+    <div class="home-container" style="align-items: flex-start; padding-top: 2rem;">
+        <div class="glass-panel" style="width: 100%; max-width: 1200px;">
+            <h1 class="main-title" style="font-size: 2.5rem; color: var(--primary);">Quản Trị Vòng Quay Check-in</h1>
+            
+            <div id="login-section" style="margin-top: 2rem; text-align: center;">
+                <input type="password" id="adminPass" class="form-control" placeholder="Nhập mật khẩu hệ thống" style="max-width: 300px; display: inline-block; margin-bottom: 1rem; text-align: center;">
+                <br>
+                <button id="btnAuth" class="btn btn-secondary">Đăng nhập</button>
+                <div id="authError" style="color: #ff5252; margin-top: 0.5rem; display: none; font-weight: bold;">❌ Sai mật khẩu!</div>
+            </div>
+
+            <div id="admin-content" style="display: none; margin-top: 2rem;">
+                
+                <!-- Tabs -->
+                <div class="admin-tabs">
+                    <button class="admin-tab active" data-target="tab-config">⚙️ Cấu hình Giải Check-in</button>
+                    <button class="admin-tab" data-target="tab-config-award">⚙️ Cấu hình Giải Trao giải</button>
+                    <button class="admin-tab" data-target="tab-checkin-list">🎡 DS Check-in</button>
+                    <button class="admin-tab" data-target="tab-award-list">🏆 DS Trao giải</button>
+                </div>
+
+                <!-- Tab: Cấu hình giải thưởng checkin -->
+                <div id="tab-config" class="tab-pane">
+                    <p id="saveStatus" style="font-weight: bold; color: var(--primary); margin-bottom: 1rem; display: none;">Đang lưu...</p>
+                    <div class="admin-layout">
+                        <!-- Left: Add/Edit Form -->
+                        <div class="form-section">
+                            <h3 style="color: var(--primary); margin-bottom: 1rem;">Thêm/Sửa Giải Thưởng</h3>
+                            <form id="prizeForm">
+                                <input type="hidden" id="editId">
+                                <div class="form-group">
+                                    <label>Tên phần thưởng</label>
+                                    <input type="text" id="prizeText" class="form-control" placeholder="Ví dụ: Voucher 10%, Chúc bạn may mắn..." required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Tỷ lệ trúng (%)</label>
+                                    <input type="number" id="prizeProb" class="form-control" min="0" max="100" step="0.1" placeholder="Ví dụ: 10" required>
+                                    <small style="color: #64748b; margin-top: 5px; display: block;">Lưu ý: Tổng các tỷ lệ không nhất thiết phải bằng 100%. Xác suất sẽ tính dựa trên trọng số tương đối.</small>
+                                </div>
+                                <div class="form-group" style="display: flex; gap: 2rem;">
+                                    <div>
+                                        <label>Màu chữ</label>
+                                        <input type="color" id="prizeTextColor" value="#ffffff" class="form-control" style="width: 80px; padding: 0.2rem; cursor: pointer;">
+                                    </div>
+                                    <div>
+                                        <label>Màu nền</label>
+                                        <input type="color" id="prizeBgColor" value="#1d4289" class="form-control" style="width: 80px; padding: 0.2rem; cursor: pointer;">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width: 100%;">Lưu Phần Thưởng</button>
+                                <button type="button" id="btnCancel" class="btn btn-secondary" style="width: 100%; margin-top: 1rem; display: none;">Hủy Sửa</button>
+                            </form>
+                        </div>
+
+                        <!-- Right: List -->
+                        <div class="list-section">
+                            <h3 style="color: var(--primary); margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                                Danh Sách Giải Thưởng
+                                <div>
+                                    <button id="btnReloadConfig" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem; margin-right: 0.5rem; background: #64748b; box-shadow: none;">TẢI LẠI</button>
+                                    <button id="btnSaveConfig" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">ÁP DỤNG LÊN FIREBASE</button>
+                                </div>
+                            </h3>
+                            <div style="margin-bottom: 1rem; padding: 0.5rem; background: #f1f5f9; border-radius: 8px; font-weight: 600; color: var(--text-light);">
+                                Tổng tỷ lệ thiết lập: <span id="totalProbDisplay">0</span>% 
+                                <span id="probWarning" style="color: #ff5252; font-size: 0.8rem; display: none; margin-left: 10px;">⚠️ Nên điều chỉnh về 100%</span>
+                            </div>
+                            <div id="prizeList" style="max-height: 500px; overflow-y: auto; padding-right: 1rem;">
+                                <!-- Items auto injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Cấu hình giải thưởng Award -->
+                <div id="tab-config-award" class="tab-pane" style="display: none;">
+                    <p id="saveStatusAward" style="font-weight: bold; color: var(--primary); margin-bottom: 1rem; display: none;">Đang lưu...</p>
+                    <div class="admin-layout">
+                        <!-- Left: Add/Edit Form -->
+                        <div class="form-section">
+                            <h3 style="color: var(--primary); margin-bottom: 1rem;">Thêm/Sửa Giải Trao Giải</h3>
+                            <form id="awardPrizeForm">
+                                <input type="hidden" id="editAwardId">
+                                <div class="form-group">
+                                    <label>Tên phần thưởng</label>
+                                    <input type="text" id="awardPrizeText" class="form-control" placeholder="Ví dụ: Laptop, Voucher..." required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Số lượng (Tổng cộng)</label>
+                                    <input type="number" id="awardPrizeTotal" class="form-control" min="1" step="1" placeholder="Ví dụ: 2" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Còn lại (Số giải chửa quay trúng)</label>
+                                    <input type="number" id="awardPrizeRemain" class="form-control" min="0" step="1" placeholder="Ví dụ: 2" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width: 100%;">Lưu Cấu Hình</button>
+                                <button type="button" id="btnCancelAward" class="btn btn-secondary" style="width: 100%; margin-top: 1rem; display: none;">Hủy Sửa</button>
+                            </form>
+                        </div>
+
+                        <!-- Right: List -->
+                        <div class="list-section">
+                            <h3 style="color: var(--primary); margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                                Danh Sách Giải Trao Giải
+                                <button id="btnReloadAwardConfig" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: #64748b; box-shadow: none;">TẢI TỪ FIREBASE</button>
+                            </h3>
+                            <div style="margin-bottom: 1rem; padding: 0.5rem; background: #f1f5f9; border-radius: 8px; font-weight: 600; color: var(--text-light);">
+                                Thay đổi tự động đồng bộ ngay lên hệ thống
+                            </div>
+                            <div id="awardPrizeList" style="max-height: 500px; overflow-y: auto; padding-right: 1rem;">
+                                <!-- Items auto injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Danh sách Check-in -->
+                <div id="tab-checkin-list" class="tab-pane" style="display: none;">
+                    <h3 style="color: var(--primary); margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                        Danh Sách Người Chơi (Vòng quay Check-in)
+                        <button id="btnRefreshCheckin" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">TẢI LẠI</button>
+                    </h3>
+                    <div class="data-list" id="checkinDataList" style="max-height: 600px; overflow-y: auto;">
+                        <p>Đang tải dữ liệu...</p>
+                    </div>
+                </div>
+
+                <!-- Tab: Danh sách Trao học bổng -->
+                <div id="tab-award-list" class="tab-pane" style="display: none;">
+                    <h3 style="color: var(--primary); margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                        Danh Sách Trúng Học Bổng (Vòng quay Trao giải)
+                        <button id="btnRefreshAward" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">TẢI LẠI</button>
+                    </h3>
+                    <div class="data-list" id="awardDataList" style="max-height: 600px; overflow-y: auto;">
+                        <p>Đang tải dữ liệu...</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/js/admin.js"></script>
+
+    <footer class="site-footer">
+        &copy; 2026 Bản quyền thuộc về Công ty cổ phần quốc tế TBT Group
+    </footer>
+</body>
+</html>

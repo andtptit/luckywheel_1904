@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vòng Quay Check-in</title>
     <link rel="stylesheet" href="./style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="checkin-body">
     <nav style="padding: 1rem 2rem;">
@@ -30,7 +30,7 @@
                     QUAY NGAY 🎡
                 </button>
             </form>
-            <div id="checkinStatus" style="margin-top: 1rem; color: #ffeb3b; font-weight: bold;"></div>
+            <div id="checkinStatus" style="margin-top: 1rem; color: var(--secondary); font-weight: bold;"></div>
         </div>
 
         <!-- Wheel Section -->
@@ -47,12 +47,17 @@
     <div class="modal-overlay" id="resultModal">
         <div class="modal-content">
             <h2 class="modal-title">Chúc Mừng! 🎉</h2>
-            <p style="color: #cbd5e1; margin-bottom: 0.5rem;" id="winnerName"></p>
+            <p style="color: var(--text-light); margin-bottom: 0.5rem;" id="winnerName"></p>
             <p class="modal-prize" id="prizeText"></p>
             <button class="btn btn-secondary" onclick="document.getElementById('resultModal').classList.remove('active')" style="flex-direction: row;">Đóng</button>
         </div>
     </div>
 
-    <script type="module" src="/js/checkin.js"></script>
+    <!-- Script imports -->
+    <script type="module" src="./js/checkin.js"></script>
+    
+    <footer class="site-footer">
+        &copy; 2026 Bản quyền thuộc về Công ty cổ phần quốc tế TBT Group
+    </footer>
 </body>
 </html>

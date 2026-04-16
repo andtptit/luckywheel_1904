@@ -5,63 +5,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lễ Trao Giải Học Bổng</title>
     <link rel="stylesheet" href="./style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="award-body">
-    <nav style="padding: 1rem 2rem;">
+    <nav style="position: absolute; top: 0; left: 0; padding: 1rem 2rem; z-index: 10;">
         <a href="./index.html" style="color: white; text-decoration: none; font-weight: bold;">← Về Trang Chủ</a>
     </nav>
-    <div class="container">
-        <!-- Control Section -->
-        <div class="glass-panel">
-            <h1 class="main-title" style="font-size: 2.5rem;">Lễ Trao Giải Học Bổng</h1>
-            
+    <div class="container-3-col">
+        
+        <!-- Cột trái: DANH SÁCH -->
+        <div class="glass-panel side-panel">
+            <h2 class="panel-title">🏆 DANH SÁCH</h2>
             <div class="form-group" style="margin-bottom: 1rem;">
-                <label>Nhập danh sách ứng viên (Mỗi người 1 dòng)</label>
                 <textarea id="candidateInput" class="form-control" rows="4" placeholder="Nguyễn Văn A&#10;Trần Thị B..."></textarea>
-                <button id="btnLoadCandidates" class="btn btn-secondary" style="flex-direction: row; margin-top: 0.5rem; padding: 0.5rem 1rem;">Tải Danh Sách</button>
+                <button id="btnLoadCandidates" class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem; padding: 0.5rem;">CẬP NHẬT</button>
             </div>
-
-            <div class="form-group">
-                <label>Chọn Loại Giải Thưởng Để Quay:</label>
-                <div class="prize-selector" id="prizeSelector">
-                    <!-- Options re-rendered by JS -->
-                </div>
+            
+            <div class="candidate-list" id="candidateList" style="flex-grow: 1; margin-top: 0;">
+                <!-- Candidates -->
             </div>
-
-            <button id="spinAwardBtn" class="btn btn-primary" style="width: 100%; flex-direction: row; font-size: 1.2rem; padding: 1rem;" disabled>
-                QUAY CHỌN NGƯỜI TRÚNG GIẢI 🎯
-            </button>
-
-            <div class="form-group" style="margin-top: 1.5rem;">
-                <label>Danh sách hiện tại (<span id="candidateCount">0</span> người)</label>
-                <div class="candidate-list" id="candidateList">
-                    <!-- Candidates -->
-                </div>
+            
+            <div style="font-weight: 600; color: var(--primary); margin-top: 1rem;">
+                Sĩ số: <span id="candidateCount" style="font-size: 1.25rem;">0</span>
             </div>
         </div>
 
-        <!-- Wheel Section -->
-        <div class="wheel-wrapper">
-            <div class="wheel-pointer" style="background: var(--gold);"></div>
-            <div class="wheel-container" style="border-color: #fff;">
-                <canvas id="awardWheel" class="wheel-canvas" width="500" height="500"></canvas>
-                <div class="wheel-center-dot" style="background: var(--bg-dark); border-color: var(--gold);"></div>
+        <!-- Cột giữa: VÒNG QUAY -->
+        <div class="center-panel">
+            <h1 class="main-title" style="font-size: 3rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">LỄ TRAO GIẢI</h1>
+            
+            <div class="slot-machine-container" id="awardSlotMachine" style="margin-bottom: 2rem;">
+                <div class="slot-overlay-top"></div>
+                <div class="slot-strip">
+                    <!-- Items auto injected -->
+                </div>
+                <div class="slot-overlay-bottom"></div>
+            </div>
+
+            <div class="prize-selector" id="prizeSelector" style="justify-content: center; margin-bottom: 1rem;">
+                <!-- Options re-rendered by JS -->
+            </div>
+
+            <p style="font-weight: bold; color: var(--text-light); text-transform: uppercase; margin-bottom: 1rem; font-size: 1.1rem;">
+                ĐANG CHỌN GIẢI: <span id="currentAwardDisplay" style="color: var(--primary);">---</span>
+            </p>
+
+            <div style="display: flex; gap: 1rem; width: 100%; max-width: 400px; justify-content: center; margin-bottom: 2rem;">
+                <button id="spinAwardBtn" class="btn btn-primary btn-lg" style="flex: 1; font-size: 1.5rem; border-radius: 50px; padding: 1.25rem;" disabled>
+                    BẮT ĐẦU QUAY!
+                </button>
+                <button id="stopAwardBtn" class="btn btn-secondary btn-lg" style="flex: 1; font-size: 1.5rem; border-radius: 50px; padding: 1.25rem; display: none; background: #ff3b30; color: white;">
+                    DỪNG LẠI!
+                </button>
             </div>
         </div>
+
+        <!-- Cột phải: BẢNG VÀNG -->
+        <div class="glass-panel side-panel">
+            <h2 class="panel-title">🏆 BẢNG VÀNG</h2>
+            <div class="candidate-list" id="goldenBoardList" style="flex-grow: 1; margin-top: 0; background: transparent; border: none; padding: 0;">
+                <p style="text-align: center; color: #94a3b8; font-style: italic; margin-top: 2rem;">Đang chờ chủ nhân các giải thưởng...</p>
+            </div>
+            <div style="text-align: center; margin-top: 1rem;">
+                <button id="btnClearGoldenBoard" style="background: transparent; border: none; color: #94a3b8; text-decoration: underline; cursor: pointer;">Đặt lại toàn bộ dữ liệu</button>
+            </div>
+        </div>
+
     </div>
 
     <!-- Result Modal -->
     <div class="modal-overlay" id="resultModal">
-        <div class="modal-content" style="border-color: #fff;">
-            <h2 class="modal-title" style="color: #fff; text-shadow: 0 0 20px var(--gold);">SÉC TRÚNG THƯỞNG 🏆</h2>
-            <p style="color: #cbd5e1; margin-bottom: 0.5rem;">Người may mắn nhất là:</p>
-            <h3 style="font-size: 2rem; color: var(--gold); margin-bottom: 1rem; font-family: var(--font-heading);" id="winnerName"></h3>
+        <div class="modal-content" style="border-color: var(--secondary);">
+            <h2 class="modal-title" style="color: var(--primary);">SÉC TRÚNG THƯỞNG 🏆</h2>
+            <p style="color: var(--text-light); margin-bottom: 0.5rem;">Người may mắn nhất là:</p>
+            <h3 style="font-size: 2rem; color: var(--secondary); margin-bottom: 1rem; font-family: var(--font-heading);" id="winnerName"></h3>
             <p class="modal-prize" id="prizeText"></p>
             <button class="btn btn-secondary" onclick="document.getElementById('resultModal').classList.remove('active')" style="flex-direction: row;">Xác Nhận & Xóa Tên</button>
         </div>
     </div>
 
-    <script type="module" src="/js/award.js"></script>
+    <script type="module" src="./js/award.js"></script>
+
+    <footer class="site-footer">
+        &copy; 2026 Bản quyền thuộc về Công ty cổ phần quốc tế TBT Group
+    </footer>
 </body>
 </html>
