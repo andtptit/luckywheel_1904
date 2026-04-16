@@ -8,6 +8,7 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         checkin: resolve(__dirname, 'checkin.html'),
         award: resolve(__dirname, 'award.html'),
+        admin: resolve(__dirname, 'admin.html'),
       },
     },
   },
