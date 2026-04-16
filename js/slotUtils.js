@@ -82,9 +82,12 @@ export class SlotMachine {
         // Winner frame cao 100px, nằm ở giữa container cao 400px -> top: 150px
         const winnerFrameOffset = 150; 
         
-        // Vị trí của item trúng giải trong strip (lấy một item ở gần cuối dải để cuộn cho dài)
-        const itemsCount = this.strip.querySelectorAll('.slot-item').length;
-        const targetItemIndex = itemsCount - (this.items.length * 2) + winIndex; 
+        // Luôn tìm item ở dải cuối cùng để đảm bảo vòng quay đủ dài
+        const allSlotItems = this.strip.querySelectorAll('.slot-item');
+        const itemsCount = allSlotItems.length;
+        
+        // Tìm vị trí của winIndex trong dải cuối cùng
+        const targetItemIndex = itemsCount - this.items.length + winIndex; 
         
         const finalY = -(targetItemIndex * this.itemHeight) + winnerFrameOffset;
 
