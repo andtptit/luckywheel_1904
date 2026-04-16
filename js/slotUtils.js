@@ -6,7 +6,7 @@ export class SlotMachine {
         this.onSpinEnd = onSpinEnd;
         this.isSpinning = false;
         
-        this.itemHeight = 100; // Chiều cao mỗi item
+        this.itemHeight = 80; // Chiều cao mỗi item (Giảm xuống 80 để hiển thị 5 item trong khung 400px)
         this.currentY = 0;
         this.spinFrame = null;
         this.lastTimestamp = 0;
@@ -80,7 +80,7 @@ export class SlotMachine {
         // Tính toán vị trí dừng
         // Chúng ta muốn item winIndex nằm ở chính giữa khung (Winner frame)
         // Winner frame cao 100px, nằm ở giữa container cao 400px -> top: 150px
-        const winnerFrameOffset = 150; 
+        const winnerFrameOffset = 160; 
         
         // Luôn tìm item ở dải cuối cùng để đảm bảo vòng quay đủ dài
         const allSlotItems = this.strip.querySelectorAll('.slot-item');
