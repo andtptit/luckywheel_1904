@@ -10,7 +10,7 @@ Tài liệu này hướng dẫn vận hành hệ thống Vòng quay sự kiện 
 ## 2. Cấu hình Giải thưởng (Dành cho Ban tổ chức)
 - Bấm vào dòng chữ nhỏ **⚙️ Quản trị Vòng quay** ở dưới cùng trang chủ.
 - **Thiết lập giải**: Bạn có thể Thêm, Sửa hoặc Xóa các giải thưởng cho cả mục Check-in và Trao giải.
-- **Số lượng & Còn lại**: Hệ thống sẽ tự động trừ vào ô "Còn lại" khi có người trúng giải. Bạn có thể chỉnh sửa thủ công nếu cần bù thêm quà.
+- **Số lượng & Còn lại**: Cả hai hệ thống đều hỗ trợ quản lý kho. Hệ thống sẽ tự động trừ vào ô "Còn lại" khi có người trúng giải. Khi ô "Còn lại" về 0, giải thưởng đó sẽ không bao giờ được quay trúng nữa. Bạn có thể chỉnh sửa thủ công nếu cần bù thêm quà.
 - **Lưu ý**: Sau khi sửa xong trên Firebase (nếu có), hãy bấm nút **Tải lại danh sách** trên UI để đồng bộ dữ liệu mới nhất.
 
 ## 3. Vòng quay Check-in (Dành cho khách mời)

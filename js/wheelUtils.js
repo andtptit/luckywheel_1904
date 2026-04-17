@@ -108,8 +108,9 @@ export class LuckyWheel {
         const winIndex = targetIndex !== undefined ? targetIndex : Math.floor(Math.random() * this.items.length);
         
         // Calculate degrees to rotate
+        // Calculate degrees to rotate to point winIndex center to 270deg (Top)
         const step = 360 / this.items.length;
-        const targetDeg = (360 - (winIndex * step)) - (step / 2);
+        const targetDeg = (270 - (winIndex * step + step / 2) + 360) % 360;
         
         // Add full rotations
         const totalDeg = this.currentDeg + (360 * 5) + targetDeg - (this.currentDeg % 360);
@@ -161,8 +162,9 @@ export class LuckyWheel {
         const winIndex = targetIndex !== undefined ? targetIndex : Math.floor(Math.random() * this.items.length);
         
         // Calculate degrees to rotate
+        // Calculate degrees to rotate to point winIndex center to 270deg (Top)
         const step = 360 / this.items.length;
-        const targetDeg = (360 - (winIndex * step)) - (step / 2);
+        const targetDeg = (270 - (winIndex * step + step / 2) + 360) % 360;
         
         const remainder = this.currentDeg % 360; 
         const extraRotations = 360 * 5; // Thêm 5 vòng nữa cho 6 giây mượt mà

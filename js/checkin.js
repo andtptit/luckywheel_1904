@@ -16,12 +16,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (snap.exists()) {
                 const data = snap.data();
                 checkinPrizes = data.items || [];
-                // Backward compatibility if items are just strings
                 checkinPrizes = checkinPrizes.map(p => {
                     if (typeof p === 'string') {
-                        return { text: p, prob: 10, textColor: '#ffffff', bgColor: '#1d4289' };
+                        return { text: p, prob: 10, textColor: '#ffffff', bgColor: '#1d4289', total: 0, remain: 0 };
                     }
-                    return p;
+                    return {
+                        ...p,
+                        prob: parseFloat(p.prob) || 0,
+                        total: parseInt(p.total) || 0,
+                        remain: parseInt(p.remain) || 0
+                    };
                 });
                 wheel.setItems(checkinPrizes);
             }
@@ -70,23 +74,33 @@ document.addEventListener('DOMContentLoaded', () => {
             // Disable button
             form.querySelector('button').disabled = true;
 
-            // Tính toán xác suất trúng
+            // Tính toán xác suất trúng (Chỉ những giải còn quà: remain > 0)
             let winIndex = 0;
-            const totalProb = checkinPrizes.reduce((sum, item) => sum + (parseFloat(item.prob) || 0), 0);
+            const availablePrizes = checkinPrizes.map((p, idx) => ({ ...p, originalIdx: idx }))
+                                                .filter(p => (p.remain === undefined || p.remain > 0));
+
+            if (availablePrizes.length === 0) {
+                statusDiv.textContent = '❌ Rất tiếc, hiện tại đã hết quà tặng!';
+                statusDiv.style.color = '#ff5252';
+                form.querySelector('button').disabled = false;
+                return;
+            }
+
+            const totalProb = availablePrizes.reduce((sum, item) => sum + (parseFloat(item.prob) || 0), 0);
             
             if (totalProb > 0) {
                 let random = Math.random() * totalProb;
-                for (let i = 0; i < checkinPrizes.length; i++) {
-                    const prob = parseFloat(checkinPrizes[i].prob) || 0;
+                for (let i = 0; i < availablePrizes.length; i++) {
+                    const prob = parseFloat(availablePrizes[i].prob) || 0;
                     if (random < prob) {
-                        winIndex = i;
+                        winIndex = availablePrizes[i].originalIdx;
                         break;
                     }
                     random -= prob;
                 }
             } else {
                 // Rơi vào random đều nếu tổng xác suất = 0
-                winIndex = Math.floor(Math.random() * checkinPrizes.length);
+                winIndex = availablePrizes[Math.floor(Math.random() * availablePrizes.length)].originalIdx;
             }
 
             wheel.spin(winIndex);
@@ -111,6 +125,22 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             
             statusDiv.textContent = 'Đã lưu kết quả thành công!';
+
+            // TRỪ SỐ LƯỢNG QUÀ TRÊN FIREBASE
+            try {
+                // Tìm đúng item trong mảng checkinPrizes để trừ remain
+                const prizeTextForSearch = typeof prize === 'object' ? prize.text : prize;
+                const pIdx = checkinPrizes.findIndex(p => p.text === prizeTextForSearch);
+                if (pIdx !== -1 && checkinPrizes[pIdx].remain !== undefined) {
+                    checkinPrizes[pIdx].remain = Math.max(0, checkinPrizes[pIdx].remain - 1);
+                    // Cập nhật lại toàn bộ document config/checkin_prizes
+                    const { setDoc, doc } = await import("firebase/firestore");
+                    await setDoc(doc(db, "config", "checkin_prizes"), { items: checkinPrizes });
+                    console.log("Đã cập nhật tồn kho Check-in:", prizeTextForSearch);
+                }
+            } catch (pErr) {
+                console.error("Lỗi cập nhật tồn kho:", pErr);
+            }
         } catch (error) {
             console.error("Lỗi lưu data:", error);
             statusDiv.textContent = 'Quay xong nhưng lỗi lưu data!';

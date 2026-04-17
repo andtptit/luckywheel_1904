@@ -76,9 +76,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Backward compatibility if items are just strings
                 prizes = prizes.map(p => {
                     if (typeof p === 'string') {
-                        return { id: Date.now().toString() + Math.random().toString(36).substring(7), text: p, prob: 10, textColor: '#ffffff', bgColor: '#1d4289' };
+                        return { id: Date.now().toString() + Math.random().toString(36).substring(7), text: p, prob: 10, total: 0, remain: 0, textColor: '#ffffff', bgColor: '#1d4289' };
                     }
                     if(!p.id) p.id = Date.now().toString() + Math.random().toString(36).substring(7);
+                    if(p.total === undefined) p.total = 0;
+                    if(p.remain === undefined) p.remain = 0;
                     return p;
                 });
                 renderPrizes();
@@ -101,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div style="background: ${prize.bgColor}; color: ${prize.textColor}; width: 30px; height: 30px; border-radius: 4px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center;">A</div>
                     <div>
                         <strong>${prize.text}</strong>
-                        <div style="font-size: 0.85rem; color: #64748b;">Trọng số: ${prize.prob}%</div>
+                        <div style="font-size: 0.85rem; color: #64748b;">Trọng số: ${prize.prob}% | Còn: ${prize.remain}/${prize.total}</div>
                     </div>
                 </div>
                 <div style="display: flex; gap: 0.5rem;">
@@ -139,18 +141,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const prob = parseFloat(document.getElementById('prizeProb').value);
         const textColor = document.getElementById('prizeTextColor').value;
         const bgColor = document.getElementById('prizeBgColor').value;
+        const total = parseInt(document.getElementById('prizeTotal').value) || 0;
+        const remain = parseInt(document.getElementById('prizeRemain').value) || 0;
 
         if (id) {
             // Edit
             const index = prizes.findIndex(p => p.id === id);
             if (index !== -1) {
-                prizes[index] = { id, text, prob, textColor, bgColor };
+                prizes[index] = { id, text, prob, total, remain, textColor, bgColor };
             }
         } else {
             // Add
             prizes.push({
                 id: Date.now().toString(),
-                text, prob, textColor, bgColor
+                text, prob, total, remain, textColor, bgColor
             });
         }
 
@@ -172,6 +176,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('editId').value = prize.id;
             document.getElementById('prizeText').value = prize.text;
             document.getElementById('prizeProb').value = prize.prob;
+            document.getElementById('prizeTotal').value = prize.total || 0;
+            document.getElementById('prizeRemain').value = prize.remain || 0;
             document.getElementById('prizeTextColor').value = prize.textColor || '#ffffff';
             document.getElementById('prizeBgColor').value = prize.bgColor || '#1d4289';
             btnCancel.style.display = 'block';
