@@ -1,22 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vòng Quay Check-in</title>
     <link rel="stylesheet" href="./style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap"
+        rel="stylesheet">
 </head>
+
 <body class="checkin-body">
-    <nav style="padding: 1rem 2rem;">
-        <a href="./index.html" style="color: white; text-decoration: none; font-weight: bold;">← Về Trang Chủ</a>
-    </nav>
+    <header class="site-header">
+        <a href="./index.html" class="back-link">← Về Trang Chủ</a>
+        <img src="./image/Logo TBT cờ đỏ sao vàng.png" alt="Logo TBT Group" class="header-logo">
+        <div class="header-text">CÔNG TY CỔ PHẦN QUỐC TẾ TBT GROUP</div>
+    </header>
     <div class="container">
         <!-- Form Section -->
         <div class="glass-panel">
             <h1 class="main-title" style="font-size: 2.5rem;">Vòng Quay May Mắn</h1>
             <p class="subtitle">Nhập thông tin để nhận phần quà hấp dẫn</p>
-            
+
             <form id="checkinForm">
                 <div class="form-group">
                     <label for="fullname">Họ và Tên</label>
@@ -26,7 +31,8 @@
                     <label for="phone">Số điện thoại</label>
                     <input type="tel" id="phone" class="form-control" placeholder="Nhập số điện thoại" required>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; flex-direction: row; font-size: 1.2rem; padding: 1rem;">
+                <button type="submit" class="btn btn-primary"
+                    style="width: 100%; flex-direction: row; font-size: 1.2rem; padding: 1rem;">
                     QUAY NGAY 🎡
                 </button>
             </form>
@@ -49,15 +55,18 @@
             <h2 class="modal-title">Chúc Mừng! 🎉</h2>
             <p style="color: var(--text-light); margin-bottom: 0.5rem;" id="winnerName"></p>
             <p class="modal-prize" id="prizeText"></p>
-            <button class="btn btn-secondary" onclick="document.getElementById('resultModal').classList.remove('active')" style="flex-direction: row;">Đóng</button>
+            <button class="btn btn-secondary"
+                onclick="document.getElementById('resultModal').classList.remove('active')"
+                style="flex-direction: row;">Đóng</button>
         </div>
     </div>
 
     <!-- Script imports -->
     <script type="module" src="./js/checkin.js"></script>
-    
+
     <footer class="site-footer">
         &copy; 2026 Bản quyền thuộc về Công ty cổ phần quốc tế TBT Group
     </footer>
 </body>
+
 </html>

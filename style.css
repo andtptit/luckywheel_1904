@@ -57,6 +57,46 @@ body {
     z-index: -1;
 }
 
+/* Site Header */
+.site-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Căn giữa Logo và Text */
+    gap: 1rem;
+    z-index: 1000;
+    pointer-events: none; /* Tránh cản trở các nút bấm bên dưới nếu có */
+}
+
+.header-logo {
+    height: 48px; /* Giảm 20% từ 60px */
+    width: auto;
+    object-fit: contain;
+}
+
+.header-text {
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 1.1rem; /* Giảm 20% từ 1.4rem */
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    font-family: var(--font-heading);
+}
+
+.back-link {
+    position: absolute;
+    left: 2rem;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    pointer-events: auto;
+}
+
 
 /* Layout Utilities */
 .container {
